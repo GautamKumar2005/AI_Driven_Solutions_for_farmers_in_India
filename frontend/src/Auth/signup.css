@@ -1,0 +1,140 @@
+/* signup.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+
+
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.signup-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90vw;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.signup-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.signup-input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: 0.3s ease-in-out;
+  outline: none;
+}
+
+.signup-input:focus {
+  border-color: #667eea;
+  box-shadow: 0px 0px 5px rgba(102, 126, 234, 0.5);
+}
+
+.signup-button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signup-button:hover {
+  background: linear-gradient(135deg, #5648a2, #493b8a);
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Profile Photo Upload Section */
+.photo-upload-container {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.photo-upload-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.photo-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.photo-preview img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #667eea;
+  transition: transform 0.3s ease-in-out;
+}
+
+.photo-preview img:hover {
+  transform: scale(1.1);
+}
+
+.custom-file-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #667eea;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-file-upload input {
+  display: none;
+}
+
+.custom-file-upload:hover {
+  background-color: #5648a2;
+  transform: translateY(-2px);
+}
+
+.file-name {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #555;
+  font-style: italic;
+}
+
+.placeholder {
+  font-size: 14px;
+  color: #bbb;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

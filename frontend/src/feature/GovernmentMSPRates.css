@@ -1,0 +1,48 @@
+.msp-container {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .msp-title {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #4CAF50;
+  }
+  
+  .msp-welcome {
+    text-align: center;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    color: #555;
+  }
+  
+  .msp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  .msp-table th,
+  .msp-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .msp-table th {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .msp-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .msp-table tr:hover {
+    background-color: #ddd;
+  }

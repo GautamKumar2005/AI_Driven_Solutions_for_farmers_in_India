@@ -32,7 +32,7 @@ function OfflineData() {
                 <pre>{JSON.stringify(result, null, 2)}</pre>
             </div>}
         </div>
-    );
+    );    
 }
 
 export default OfflineData;

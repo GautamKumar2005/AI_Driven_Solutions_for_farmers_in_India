@@ -1,0 +1,91 @@
+.article-container {
+    max-width: 100vw; /* Restrict width for readability */
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .article-container h1, 
+  .article-container h2, 
+  .article-container h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+  
+  .article-container p {
+    line-height: 1.6;
+    color: #333;
+  }
+  
+  .article-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+    border-radius: 5px;
+  }
+  
+  .article-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  .article-container th, 
+  .article-container td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .article-container th {
+    background-color: #f4f4f4;
+  }
+  
+  .article-container ul, 
+  .article-container ol {
+    padding-left: 20px;
+  }
+  
+  .article-container a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .article-container a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .article-container {
+      padding: 15px;
+    }
+    
+    .article-container table, 
+    .article-container th, 
+    .article-container td {
+      font-size: 14px;
+    }
+  }
+  .small-svg {
+    width: 16px !important;  /* Force small size */
+    height: 16px !important; /* Force small size */
+    max-width: 16px;
+    max-height: 16px;
+    fill: currentColor; /* Keeps the color dynamic */
+  }
+  svg {
+    display: none !important;
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap; /* Ensures items wrap if they don't fit in one row */
+    gap: 10px; /* Adds spacing between list items */
+    list-style: none; /* Removes default list styling */
+    padding: 0;
+    justify-content: center; /* Centers the items */
+    align-items: center;
+  }
+  

@@ -1,35 +1,35 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import '../styles/Navigation.css';
 
-function Navigation() {
+const Navbar = () => {
+    const navigate = useNavigate();
+  
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <NavLink className="navbar-brand" to="/">Farming App</NavLink>
-            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav ml-auto">
-                    <li className="nav-item">
-                        <NavLink className="nav-link" to="/crop-monitoring">Crop Monitoring</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink className="nav-link" to="/pest-detection">Pest Detection</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink className="nav-link" to="/legal-info">Legal Info</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink className="nav-link" to="/pricing-info">Pricing Info</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink className="nav-link" to="/offline-data">Offline Data</NavLink>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+      <nav className="navbar">
+        {/* Logo & Title */}
+        <div className="navbar-logo" onClick={() => navigate("/")}>
+          <img src="../ai logo.jpg" alt="Logo" className="logo" />
+          <h1 className='Logo_name'>AgriConnect</h1>
+        </div>
+  
+        {/* Navigation Links */}
+        <ul className="navbar-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/crop-monitoring">Crop Monitoring</a></li>
+          <li><a href="/pest-detection">Pest Detection</a></li>
+          <li><a href="/pricing-info">Pricing</a></li>
+        </ul>
+  
+        {/* Login & Signup Buttons */}
+        <div className="navbar-auth">
+          <button className="login-btn" onClick={() => navigate("/login")}>Login</button>
+          <button className="signup-btn" onClick={() => navigate("/signup")}>Signup</button>
+        </div>
+      </nav>
     );
-}
+  };
 
-export default Navigation;
+export default Navbar;

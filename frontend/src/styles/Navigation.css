@@ -1,11 +1,135 @@
-.navbar {
-    background-color: #007bff;
-}
-
-.navbar-brand, .nav-link {
-    color: #fff !important;
-}
-
-.nav-link:hover {
-    color: #ffc107 !important;
-}
+/* Navbar container with fade-in animation */
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    padding: 12px 25px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+  
+  /* Logo & title (left-aligned, no hover effect) */
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .logo {
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    background-color: rgba(10, 167, 41, 0.696);
+  }
+  
+  .navbar-logo h1 {
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Right section (Links & Buttons) */
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  /* Navigation links */
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar-links li {
+    display: inline;
+  }
+  
+  .navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    padding: 6px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Underline animation */
+  .navbar-links a::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: white;
+    left: 0;
+    bottom: -4px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .navbar-links a:hover::after {
+    transform: scaleX(1);
+  }
+  
+  /* Login & Signup Buttons */
+  .navbar-auth {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .login-btn, .signup-btn {
+    background: white;
+    color: #1e3c72;
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    box-shadow: 0 3px 7px rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  /* Button hover effect */
+  .login-btn:hover, .signup-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 10px rgba(255, 255, 255, 0.3);
+  }
+  
+  .signup-btn {
+    background: #e74c3c;
+    color: white;
+  }
+  
+  .signup-btn:hover {
+    background: #c0392b;
+  }
+  
+  .Logo_name{
+    color: white;
+  }
