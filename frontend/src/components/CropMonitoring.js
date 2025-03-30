@@ -9,10 +9,11 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 function CropMonitoring() {
     const [image, setImage] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null); // For image preview
+    const [imagePreview, setImagePreview] = useState(null);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [textDescription, setTextDescription] = useState('');
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -20,10 +21,14 @@ function CropMonitoring() {
         setResult(null);
         setError(null);
         if (file) {
-            setImagePreview(URL.createObjectURL(file)); // Generate preview URL
+            setImagePreview(URL.createObjectURL(file));
         } else {
             setImagePreview(null);
         }
+    };
+
+    const handleTextChange = (e) => {
+        setTextDescription(e.target.value);
     };
 
     const handleSubmit = async (event) => {
@@ -36,6 +41,11 @@ function CropMonitoring() {
 
         const formData = new FormData();
         formData.append('image', image);
+        
+        // Add text description if provided
+        if (textDescription.trim()) {
+            formData.append('description', textDescription.trim());
+        }
 
         setLoading(true);
         setError(null);
@@ -45,7 +55,9 @@ function CropMonitoring() {
             const response = await axios.post('http://localhost:5000/crop-monitoring', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            setResult(response.data.result);
+            
+            // Store the entire response data
+            setResult(response.data);
             console.log('Crop Analysis Result:', response.data);
         } catch (error) {
             const errorData = error.response?.data;
@@ -60,20 +72,49 @@ function CropMonitoring() {
 
     // Convert result to chart data (ratings out of 10)
     const getChartData = () => {
-        if (!result) return null;
+        if (!result || !result.plant_health) return null;
 
-        // Map results to numerical ratings (example mapping)
-        const ratings = {
-            health: result.health === 'good' ? 8 : result.health === 'poor' ? 2 : 5,
-            growth_stage: result.growth_stage === 'mature' ? 7 : result.growth_stage === 'early' ? 3 : 5,
-            nutrient_deficiency: result.nutrient_deficiency === 'none' ? 9 : result.nutrient_deficiency === 'severe' ? 1 : 4
+        // Map health status to numerical ratings
+        const getHealthRating = (status) => {
+            switch(status) {
+                case 'good': return 9;
+                case 'moderate': return 5;
+                case 'not healthy': return 2;
+                default: return 5;
+            }
         };
 
+        // Map growth stage to numerical ratings
+        const getGrowthRating = (stage) => {
+            switch(stage) {
+                case 'normal': return 8;
+                case 'medium': return 5;
+                case 'need help': return 3;
+                default: return 5;
+            }
+        };
+
+        // Map nutrient deficiency to numerical ratings
+        const getNutrientRating = (deficiency) => {
+            switch(deficiency) {
+                case 'none': return 9;
+                case 'no need': return 7;
+                case 'yes need': return 2;
+                default: return 5;
+            }
+        };
+
+        const plantHealth = result.plant_health;
+        
         return {
             labels: ['Health', 'Growth Stage', 'Nutrient Deficiency'],
             datasets: [{
                 label: 'Crop Rating',
-                data: [ratings.health, ratings.growth_stage, ratings.nutrient_deficiency],
+                data: [
+                    getHealthRating(plantHealth.health),
+                    getGrowthRating(plantHealth.growth_stage),
+                    getNutrientRating(plantHealth.nutrient_deficiency)
+                ],
                 backgroundColor: ['#00796b', '#004d40', '#26a69a'],
                 borderColor: ['#004d40', '#00332b', '#1b746e'],
                 borderWidth: 1,
@@ -92,6 +133,33 @@ function CropMonitoring() {
         }
     };
 
+    // Helper function to get color class based on status
+    const getStatusColorClass = (status, type) => {
+        if (type === 'health') {
+            switch(status) {
+                case 'good': return 'status-good';
+                case 'moderate': return 'status-moderate';
+                case 'not healthy': return 'status-poor';
+                default: return '';
+            }
+        } else if (type === 'growth') {
+            switch(status) {
+                case 'normal': return 'status-good';
+                case 'medium': return 'status-moderate';
+                case 'need help': return 'status-poor';
+                default: return '';
+            }
+        } else if (type === 'nutrient') {
+            switch(status) {
+                case 'none': return 'status-good';
+                case 'no need': return 'status-moderate';
+                case 'yes need': return 'status-poor';
+                default: return '';
+            }
+        }
+        return '';
+    };
+
     return (
         <div className="crop-monitoring-container">
             <h1 className="title">Crop Monitoring Dashboard</h1>
@@ -107,6 +175,14 @@ function CropMonitoring() {
                             className="file-input"
                         />
                     </label>
+                    <div className="text-input-container">
+                        <textarea
+                            placeholder="Optional: Describe your plant's condition"
+                            value={textDescription}
+                            onChange={handleTextChange}
+                            className="text-description"
+                        />
+                    </div>
                     <button type="submit" className="analyze-btn" disabled={loading}>
                         {loading ? 'Analyzing...' : 'Analyze Crop'}
                     </button>
@@ -133,21 +209,27 @@ function CropMonitoring() {
                 </div>
             )}
 
-            {result && !error && (
+            {result && result.plant_health && !error && (
                 <div className="result-section">
                     <div className="result-card">
                         <h2>Analysis Results</h2>
                         <div className="result-item">
                             <span className="label">Health:</span>
-                            <span className="value">{result.health}</span>
+                            <span className={`value ${getStatusColorClass(result.plant_health.health, 'health')}`}>
+                                {result.plant_health.health}
+                            </span>
                         </div>
                         <div className="result-item">
                             <span className="label">Growth Stage:</span>
-                            <span className="value">{result.growth_stage}</span>
+                            <span className={`value ${getStatusColorClass(result.plant_health.growth_stage, 'growth')}`}>
+                                {result.plant_health.growth_stage}
+                            </span>
                         </div>
                         <div className="result-item">
                             <span className="label">Nutrient Deficiency:</span>
-                            <span className="value">{result.nutrient_deficiency}</span>
+                            <span className={`value ${getStatusColorClass(result.plant_health.nutrient_deficiency, 'nutrient')}`}>
+                                {result.plant_health.nutrient_deficiency}
+                            </span>
                         </div>
                     </div>
                     <div className="chart-container">
@@ -155,8 +237,56 @@ function CropMonitoring() {
                     </div>
                 </div>
             )}
+
+            {result && result.recommendations && (
+                <div className="recommendations-section">
+                    <h3>Recommendations</h3>
+                    <ul className="recommendations-list">
+                        {result.recommendations.map((recommendation, index) => (
+                            <li key={index} className="recommendation-item">{recommendation}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {result && result.plant_health_options && (
+                <div className="options-section">
+                    <h3>Available Plant Health Categories</h3>
+                    <div className="options-grid">
+                        <div className="option-card">
+                            <h4>Health Options</h4>
+                            <ul>
+                                {result.plant_health_options.health.map((option, index) => (
+                                    <li key={index} className={getStatusColorClass(option, 'health')}>
+                                        {option}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="option-card">
+                            <h4>Growth Stage Options</h4>
+                            <ul>
+                                {result.plant_health_options.growth_stage.map((option, index) => (
+                                    <li key={index} className={getStatusColorClass(option, 'growth')}>
+                                        {option}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="option-card">
+                            <h4>Nutrient Deficiency Options</h4>
+                            <ul>
+                                {result.plant_health_options.nutrient_deficiency.map((option, index) => (
+                                    <li key={index} className={getStatusColorClass(option, 'nutrient')}>
+                                        {option}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-        
     );
 }
 
