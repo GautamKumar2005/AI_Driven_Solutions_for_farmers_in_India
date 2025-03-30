@@ -95,8 +95,14 @@ Additionally, the platform enables **global crop trend analysis and monitoring**
    conda activate ai_farmer
    pip install opencv-python paddleocr tensorflow torch torchvision
    ```
+   or
+   ```sh
+   pip install -r requirements.txt
+   python --version
+   where python
+   ```
 
-5. **Update Backend Python Path**
+6. **Update Backend Python Path**
    - Open `backend/routes/crop_monitoring.js` and `backend/routes/pestDetection.js`
    - Replace:
      ```js
@@ -131,7 +137,8 @@ For any queries, feel free to reach out:
 ai-farmer-solution/
 │
 ├── backend/
-│   ├── controllers/
+│   ├── build/
+│   ├── yolo/
 │   ├── models/
 │   ├── routes/
 │   ├── index.js
@@ -151,4 +158,38 @@ ai-farmer-solution/
 ├── README.md
 ```
 
-🚜 Empowering Farmers with AI! 🌿 
+🚜 Empowering Farmers with AI! 🌿
+
+![Citrus Disease Scaled](info/citrus_disease-scaled.jpeg)
+![Crop Health](info/crop_health.png)
+![Pest Result 1](info/pest1result.png)
+![Pest Result 2](info/pest2resultss.png)
+![Recommendation](info/recommendation.png)
+
+## Additional Setup Instructions
+
+### ngrok Setup
+1. Download ngrok from [ngrok.com](https://ngrok.com/download).
+2. Unzip the downloaded file and place it in a directory of your choice.
+3. Add the directory to your system's PATH environment variable.
+4. To expose a local server to the internet, use the following command:
+   ```sh
+   ngrok http 5000
+   ```
+5. This will generate a public URL that tunnels to your local server running on port 5000.
+
+### ffmpeg Setup
+1. Download ffmpeg from [ffmpeg.org](https://ffmpeg.org/download.html).
+2. Unzip the downloaded file and place it in a directory of your choice.
+3. Add the directory to your system's PATH environment variable.
+4. Verify the installation by running the following command:
+   ```sh
+   ffmpeg -version
+   ```
+
+### RTSP URL for Drone Tracking
+   Example:
+   ```sh
+   rtsp://your-drone-ip-address:port/stream
+   ``` 
+   
