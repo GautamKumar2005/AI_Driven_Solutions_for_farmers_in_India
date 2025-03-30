@@ -1,0 +1,70 @@
+.drone-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.drone-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.drone-input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.drone-buttons {
+    margin-top: 15px;
+}
+
+.drone-start-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.drone-stop-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.drone-start-btn:hover {
+    background-color: #218838;
+}
+
+.drone-stop-btn:hover {
+    background-color: #c82333;
+}
+
+.drone-stream {
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.drone-message {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}

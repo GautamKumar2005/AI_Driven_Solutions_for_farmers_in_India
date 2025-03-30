@@ -9,13 +9,24 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const http = require("http");
+const socketIo = require("socket.io");
 
 // Importing routes
 const cropMonitoringRoutes = require('./routes/cropMonitoring');
 const pestDetectionRoutes = require('./routes/pestDetection');
 const offlineDataRoutes = require('./routes/offlineData');
+const droneRoutes = require("./routes/drone");
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Securely load API Key from environment variables
@@ -42,6 +53,13 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 app.use('/crop-monitoring', cropMonitoringRoutes);
 app.use('/pest-detection', pestDetectionRoutes);
 app.use('/offline-data', offlineDataRoutes);
+
+// Attach `io` to droneRoutes
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+app.use("/api/drone", droneRoutes);
 
 app.get('/scrape', async (req, res) => {
     try {
@@ -144,6 +162,6 @@ app.get('/pricing-info', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
 
 module.exports = app;

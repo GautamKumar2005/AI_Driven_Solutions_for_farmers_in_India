@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
+import DroneStream from '../drone/drone';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import '../styles/CropMonitoring.css';
 
@@ -161,8 +162,10 @@ function CropMonitoring() {
     };
 
     return (
+    <>
+        <DroneStream />
         <div className="crop-monitoring-container">
-            <h1 className="title">Crop Monitoring Dashboard</h1>
+            <h1 className="title">Plant Growth Information</h1>
             <div className="upload-section">
                 <form onSubmit={handleSubmit} className="upload-form">
                     <label htmlFor="image-upload" className="file-label">
@@ -287,6 +290,7 @@ function CropMonitoring() {
                 </div>
             )}
         </div>
+        </>
     );
 }
 
