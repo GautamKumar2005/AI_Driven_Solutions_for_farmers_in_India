@@ -165,6 +165,7 @@ ai-farmer-solution/
 ![Pest Result 1](info/pest1result.png)
 ![Pest Result 2](info/pest2resultss.png)
 ![Recommendation](info/recommendation.png)
+![Drone](info/drone.png)
 
 ## Additional Setup Instructions
 
