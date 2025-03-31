@@ -137,7 +137,7 @@ Additionally, the platform enables **global crop trend analysis and monitoring**
 
 4. **Install Python Dependencies**
    ```sh
-   conda create --name ai_farmer python=3.8 or python=3.12.8
+   conda create --name ai_farmer python=3.8 or python=3.12.4
    conda activate ai_farmer
    pip install opencv-python paddleocr tensorflow torch torchvision
    ```
