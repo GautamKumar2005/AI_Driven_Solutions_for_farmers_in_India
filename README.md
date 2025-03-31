@@ -128,7 +128,7 @@ Contributions are welcome! Feel free to **fork** this repository, create feature
 
 ## 📞 Contact
 For any queries, feel free to reach out:
-- **GitHub:** [GitHub](https://github.com/GautamKumar2005/AI_Driven_Solution_for_farmers)
+- **GitHub:** [GitHub](https://github.com/GautamKumar2005/AI_Driven_Solutions_for_farmers_in_India/)
 
 ---
 
