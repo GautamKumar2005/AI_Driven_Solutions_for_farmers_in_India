@@ -71,7 +71,7 @@ Additionally, the platform enables **global crop trend analysis and monitoring**
 ### **Installation Steps**
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/your-username/ai-farmer-solution.git
+   git clone https://github.com/GautamKumar2005/AI_Driven_Solutions_for_farmers_in_India.git
    cd ai-farmer-solution
    ```
 
