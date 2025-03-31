@@ -197,7 +197,8 @@ ai-farmer-solution/
 │
 ├── ai/
 │   ├── yolo/ 
-│   ├── crop_monitoring.py 
+│   ├── crop_monitoring.py
+│   ├── monitor.py  
 │   ├── offline_data_retrieval.py 
 │   ├── pest_detection.py
 │
