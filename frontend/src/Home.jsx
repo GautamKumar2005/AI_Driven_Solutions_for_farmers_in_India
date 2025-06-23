@@ -27,22 +27,24 @@ const Input = ({ type, placeholder, value, onChange, className }) => {
 };
 
 const WeatherApp = () => {
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState('');
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const fetchWeatherData = async () => {
-    if (!city) return;
+    if (!city) {
+      setError('Please enter a city');
+      return;
+    }
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const response = await fetch(
         `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}&aqi=no`
       );
-      if (!response.ok) throw new Error("City not found");
-
+      if (!response.ok) throw new Error('City not found');
       const data = await response.json();
       setWeatherData(data);
     } catch (err) {
@@ -55,10 +57,9 @@ const WeatherApp = () => {
 
   return (
     <section className="weather-container">
-      <div className="content">
-        {/* Left Section */}
-        <div className="text-content">
-          <h1 className="title">Weather App</h1>
+      <div className="weather-content">
+        <h1 className="title">Weather Forecast</h1>
+        <div className="search-box">
           <input
             type="text"
             placeholder="Enter city"
@@ -66,47 +67,43 @@ const WeatherApp = () => {
             onChange={(e) => setCity(e.target.value)}
             className="search-input"
           />
-          <button className="search-button" onClick={fetchWeatherData} disabled={loading}>
-            {loading ? "Loading..." : "Search"}
+          <button
+            className="search-button"
+            onClick={fetchWeatherData}
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Search'}
           </button>
-
-          {loading && <div className="loader"></div>}
-          {error && <p className="error">{error}</p>}
-
-          {!loading && weatherData && (
-            <div className="weather-cards">
-              <div className="feature-card">
-                <Thermometer className="icon" />
-                <h3>Temperature</h3>
-                <p>{weatherData.current.temp_c}°C</p>
-                <span>{weatherData.current.condition.text}</span>
-              </div>
-
-              <div className="feature-card">
-                <Wind className="icon" />
-                <h3>Wind Speed</h3>
-                <p>{weatherData.current.wind_kph} kph</p>
-                <span>Feels like {weatherData.current.feelslike_c}°C</span>
-              </div>
-
-              <div className="feature-card">
-                <Cloud className="icon" />
-                <h3>Humidity</h3>
-                <p>{weatherData.current.humidity}%</p>
-                <span>Pressure: {weatherData.current.pressure_mb} mb</span>
-              </div>
+        </div>
+        {error && <p className="error">{error}</p>}
+        {loading && <div className="loader"></div>}
+        {weatherData && (
+          <div className="weather-cards">
+            <div className="weather-feature-card temperature-card">
+              <Thermometer className="icon" />
+              <h3>Temperature</h3>
+              <p>{weatherData.current.temp_c}°C</p>
+              <span>{weatherData.current.condition.text}</span>
             </div>
-          )}
-        </div>
-
-        {/* Right Section (Anchor Image) */}
-        <div className="image-container">
-          <img src="/anchor.jpg" alt="Weather Forecast" className="background-img" />
-        </div>
+            <div className="weather-feature-card wind-card">
+              <Wind className="icon" />
+              <h3>Wind Speed</h3>
+              <p>{weatherData.current.wind_kph} kph</p>
+              <span>Feels like {weatherData.current.feelslike_c}°C</span>
+            </div>
+            <div className="weather-feature-card humidity-card">
+              <Cloud className="icon" />
+              <h3>Humidity</h3>
+              <p>{weatherData.current.humidity}%</p>
+              <span>Pressure: {weatherData.current.pressure_mb} mb</span>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
 };
+
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -238,7 +235,7 @@ const FeatureCard = ({ title, path, background }) => {
 
 const features = [
   { title: "Marketing Analysis", path: "/marketing" },
-  { title: "Government MSP Rates", path: "/msp-rates" },
+  { title: "Buyer Connection", path: "/buyer-connection" },
   { title: "Global Crop Trends", path: "/crop-trends" },
   { title: "Agricultural Technology", path: "/agri-tech" },
   { title: "Community Network", path: "/community" }

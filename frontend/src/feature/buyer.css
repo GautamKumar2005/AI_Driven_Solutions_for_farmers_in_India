@@ -1,0 +1,314 @@
+/* Buyer Container */
+.buyer-container, .chat-container {
+    max-width: 1200px;
+    min-height: 600px; /* Matches WeatherApp */
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Buyer Content */
+.buyer-content, .chat-content {
+    width: 100%;
+    max-width: 900px; /* Matches CropMonitoring chart */
+    text-align: center;
+}
+
+/* Title */
+.title, .chat-title {
+    font-size: 2rem;
+    color: #1a3c34;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.chat-title-icon {
+    color: #4caf50;
+}
+
+/* Search Box */
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    color: #666;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.6rem 2rem 0.6rem 2.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+/* Farmer Grid */
+.farmer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Farmer Card */
+.farmer-card {
+    border-radius: 8px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    transition: transform 0.3s ease;
+    animation: zoomIn 0.5s ease-in-out;
+}
+
+.farmer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.farmer-card-1 {
+    border: 2px solid #4caf50; /* Green for Farmer 1 */
+}
+
+.farmer-card-2 {
+    border: 2px solid #0288d1; /* Blue for Farmer 2 */
+}
+
+.farmer-card-3 {
+    border: 2px solid #ffd700; /* Yellow for Farmer 3 */
+}
+
+.farmer-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.farmer-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1a3c34;
+    margin: 0.5rem 0;
+}
+
+.crops-list {
+    margin-bottom: 0.8rem;
+}
+
+.crop-item {
+    font-size: 0.9rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    justify-content: center;
+}
+
+.crop-icon {
+    color: #4caf50;
+}
+
+.chat-button {
+    padding: 0.6rem 1rem;
+    background: linear-gradient(to right, #4caf50, #388e3c);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0 auto;
+}
+
+.chat-button:hover {
+    background: linear-gradient(to right, #388e3c, #2e7d32);
+}
+
+.chat-icon {
+    font-size: 1.2rem;
+}
+
+.no-results {
+    font-size: 1rem;
+    color: #e74c3c;
+    margin-top: 1rem;
+}
+
+/* Chat Box */
+.chat-box {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.message {
+    margin: 0.5rem 0;
+    padding: 0.6rem;
+    border-radius: 6px;
+    max-width: 70%;
+}
+
+.message-buyer {
+    background: #4caf50;
+    color: white;
+    margin-left: auto;
+    text-align: right;
+}
+
+.message-farmer {
+    background: #e0e0e0;
+    color: #333;
+    margin-right: auto;
+    text-align: left;
+}
+
+.message-text {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    color: #999;
+    display: block;
+    margin-top: 0.2rem;
+}
+
+.chat-form {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #4caf50;
+}
+
+.send-button {
+    padding: 0.6rem 1rem;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background: #388e3c;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    background: #e74c3c;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.back-button:hover {
+    background: #c0392b;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .buyer-container, .chat-container {
+        padding: 1rem;
+        margin: 1rem;
+        min-height: 500px;
+    }
+
+    .farmer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-input {
+        max-width: 100%;
+    }
+
+    .chat-box {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title, .chat-title {
+        font-size: 1.6rem;
+    }
+
+    .farmer-name {
+        font-size: 1.1rem;
+    }
+
+    .crop-item {
+        font-size: 0.8rem;
+    }
+
+    .chat-button, .send-button, .back-button {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.8rem;
+    }
+
+    .chat-input {
+        font-size: 0.9rem;
+    }
+}

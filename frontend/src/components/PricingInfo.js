@@ -9,7 +9,7 @@ function PricingInfo() {
     useEffect(() => {
         async function fetchPricingInfo() {
             try {
-                console.log('Fetching pricing info...');
+                console.log('Fetching pricing info... ');
                 const response = await fetch('http://localhost:5000/pricing-info');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -48,7 +48,7 @@ function PricingInfo() {
 
     return (
         <div className="pricing-info-container">
-            <h2 className="pricing-info-title">Pricing Information</h2>
+            <h2 className="pricing-info-title">Pricing Information Rs per Quintal</h2>
             {Object.keys(groupedData).map(sessionYear => (
                 <React.Fragment key={sessionYear}>
                     {sessionYear === 'Unknown' ? <h3 className="pricing-info-session-title">2025-26</h3> : <h3 className="pricing-info-session-title">{sessionYear}</h3>}

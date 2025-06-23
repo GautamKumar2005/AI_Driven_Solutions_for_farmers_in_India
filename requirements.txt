@@ -1,0 +1,10 @@
+opencv-python
+numpy
+torch
+transformers
+Pillow
+python-dotenv
+ultralytics
+google-generativeai
+pandas
+paddleocr

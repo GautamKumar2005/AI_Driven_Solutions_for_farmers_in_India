@@ -3,7 +3,7 @@ import CropMonitoring from "./components/CropMonitoring";
 import Navbar from "./components/Navigation";  // Ensure this is imported correctly
 import Home from "./Home";
 import GlobalCropTrends from "./feature/globaltrends";
-import GovernmentMSPRates from "./feature/msprates";
+import { Buyer, ChatPage } from "./feature/Buyer"
 import CommunityNetwork from "./feature/community";
 import MarketingAnalysis from "./feature/marketing";
 import AgriculturalTechnology from "./feature/agritech";
@@ -32,7 +32,8 @@ function App() {
         <Route path="/agri-tech" element={<AgriculturalTechnology/>}/>      
         <Route path="/crop-trends" element={<GlobalCropTrends/>}/>
         <Route path="/community" element={<CommunityNetwork/>}/>
-        <Route path="/msp-rates" element={<GovernmentMSPRates/>}/>
+        <Route path="/buyer-connection" element={<Buyer/>}/>
+        <Route path="/chat/:farmerId" element={<ChatPage />} />
         <Route path="/marketing" element={<MarketingAnalysis/>}/>
         <Route path="/pest-detection" element={<PestDetection/>}/>
         <Route path="/agri-chat" element={<AgriChat/>}/>
