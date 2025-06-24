@@ -1,137 +1,338 @@
-/* 🔹 General Chat Container */
-.chat-container {
-    max-width: 500px;
-    margin: 20px auto;
-    display: flex;
-    flex-direction: column;
-    background-color: #e5ddd5;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    font-family: "Arial", sans-serif;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --farm-green-dark: #1b5e20;
+  --farm-green-light: #4caf50;
+  --farm-gold: #ffc107;
+  --farm-brown: #3e2723;
+  --farm-cream: #fef7e0;
+  --shadow-dark: rgba(0, 0, 0, 0.2);
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --font-primary: 'Poppins', sans-serif;
+  --font-secondary: 'Merriweather', serif;
+}
+
+
+
+.AgriChatContainer {
+  width: 100%;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 25px;
+  box-shadow: 0 15px 40px var(--shadow-dark);
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.AgriChatHeader {
+  background: linear-gradient(90deg, var(--farm-green-dark), var(--green-light));
+  color: #0d8a88;
+  padding: 20px;
+  font-family: var(--font-secondary);
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: 0 4px 10px var(--shadow-light);
+}
+
+.AgriChatHeader::before {
+  content: '🌿';
+  font-size: 2rem;
+  margin-right: 10px;
+  animation: glowLeaf 2s ease-in-out infinite;
+}
+
+.AgriChatMessageArea {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  background: url('https://www.transparenttextures.com/patterns/wheat.png') repeat, var(--farm-cream);
+  background-size: 200px;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.message {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-end;
+  animation: slideIn 0.4s ease-out;
+}
+
+.MessageBubbleUser pre {
+  background: linear-gradient(45deg, var(--farm-green-dark), var(--farm-green-light));
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 20px 5px 20px 20px;
+  max-width: 70%;
+  font-size: 1rem;
+  line-height: 1.4;
+  box-shadow: 0 5px 15px var(--shadow-light);
+  transition: transform 0.2s;
+}
+
+.MessageBubbleBot pre {
+  background: linear-gradient(45deg, var(--farm-gold), #ffe082);
+  color: var(--farm-brown);
+  padding: 15px 20px;
+  border-radius: 5px 20px 20px 20px;
+  max-width: 70%;
+  font-size: 1rem;
+  line-height: 1.4;
+  box-shadow: 0 5px 15px var(--shadow-light);
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.MessageBubbleBot pre::before {
+  content: '🚜';
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.MessageBubbleUser pre:hover,
+.MessageBubbleBot pre:hover {
+  transform: translateY(-2px);
+}
+
+.LoadingSpinnerTractor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--farm-green-dark);
+  font-size: 1rem;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+.LoadingSpinnerTractor::after {
+  content: '';
+  width: 30px;
+  height: 30px;
+  background: url('https://img.icons8.com/emoji/30/000000/tractor-emoji.png') no-repeat center;
+  background-size: contain;
+  display: inline-block;
+  animation: driveTractor 2s linear infinite;
+}
+
+.AgriChatInputBar {
+  display: flex;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 2px solid #e0e0e0;
+  position: sticky;
+  bottom: 0;
+  z-index: 200;
+  backdrop-filter: blur(5px);
+}
+
+.AgriChatInputBar input {
+  flex: 1;
+  padding: 15px 20px;
+  border: 2px solid #d0d0d0;
+  border-radius: 30px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.AgriChatInputBar input:focus {
+  border-color: var(--farm-green-dark);
+  box-shadow: 0 0 8px rgba(27, 94, 32, 0.4);
+}
+
+.AgriChatInputBar button {
+  margin-left: 15px;
+  padding: 15px 30px;
+  background: linear-gradient(90deg, var(--farm-green-dark), var(--farm-green-light));
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 5px 15px var(--shadow-light);
+  transition: transform 0.3s, box-shadow 0.3s;
+  animation: pulseButton 2s infinite;
+}
+
+.AgriChatInputBar button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px var(--shadow-dark);
+}
+
+.AgriChatInputBar button:disabled {
+  background: #b0b0b0;
+  cursor: not-allowed;
+  transform: none;
+  animation: none;
+  box-shadow: none;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glowLeaf {
+  0%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px var(--farm-green-light); }
+  50% { text-shadow: 0 0 10px #fff, 0 0 20px var(--farm-green-light); }
+}
+
+@keyframes driveTractor {
+  0% { transform: translateX(-20px); }
+  50% { transform: translateX(20px); }
+  100% { transform: translateX(-20px); }
+}
+
+@keyframes pulseButton {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@media (max-width: 600px) {
+  .AgriChatContainer {
+    height: 95vh;
+    margin: 10px;
+    border-radius: 15px;
   }
-  
-  /* 🔹 Chat Header */
-  .chat-header {
-    background-color: #075e54;
-    color: white;
+
+  .AgriChatHeader {
+    font-size: 1.5rem;
     padding: 15px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
   }
-  
-  /* 🔹 Chat Box (Messages Area) */
-  .chat-box {
-    height: 400px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    background-color: #f5f5f5;
-    scrollbar-width: thin;
-    scrollbar-color: #bbb #f5f5f5;
+
+  .AgriChatMessageArea {
+    padding: 15px;
   }
-  
-  /* 🔹 Scrollbar Customization */
-  .chat-box::-webkit-scrollbar {
-    width: 6px;
+
+  .MessageBubbleUser pre,
+  .MessageBubbleBot pre {
+    max-width: 80%;
+    font-size: 0.95rem;
+    padding: 12px 16px;
   }
-  
-  .chat-box::-webkit-scrollbar-thumb {
-    background: #bbb;
-    border-radius: 10px;
+
+  .AgriChatInputBar {
+    padding: 15px;
   }
-  
-  /* 🔹 Messages Styling */
-  .message {
-    max-width: 75%;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 10px;
-    font-size: 14px;
-    line-height: 1.4;
-    word-wrap: break-word;
+
+  .AgriChatInputBar input {
+    padding: 12px 15px;
+    font-size: 0.95rem;
   }
-  
-  /* ✅ User Message (Blue - Right Side) */
-  .user {
-    align-self: flex-end;
-    background-color: #dcf8c6;
-    color: black;
-    text-align: left;
-    border-bottom-right-radius: 0;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+
+  .AgriChatInputBar button {
+    padding: 12px 20px;
+    font-size: 0.95rem;
   }
-  
-  /* 🤖 Bot Message (Green - Left Side) */
-  .bot {
-    align-self: flex-start;
-    background-color: #fff;
-    color: #333;
-    text-align: left;
-    border-bottom-left-radius: 0;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 900px) {
+  .AgriChatContainer {
+    width: 95%;
   }
-  
-  /* 🔹 Preformatted Text (For AI Response) */
-  pre {
-    font-family: "Arial", sans-serif;
-    font-size: 14px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  
-  /* 🔹 Typing Indicator */
-  .loading-text {
-    text-align: center;
-    color: gray;
-    font-style: italic;
-    font-size: 13px;
-  }
-  
-  /* 🔹 Chat Input Box */
-  .chat-input {
-    display: flex;
-    padding: 10px;
-    background-color: #fff;
-    border-top: 1px solid #ddd;
-  }
-  
-  /* 🔹 Input Field */
-  .chat-input input {
-    flex-grow: 1;
-    padding: 10px;
-    border-radius: 20px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    outline: none;
-    transition: 0.3s ease;
-  }
-  
-  .chat-input input:focus {
-    border-color: #075e54;
-  }
-  
-  /* 🔹 Send Button */
-  .chat-input button {
-    padding: 10px 15px;
-    background-color: #128c7e;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    margin-left: 8px;
-    transition: 0.3s ease;
-  }
-  
-  .chat-input button:hover {
-    background-color: #0d7b70;
-  }
-  
-  .chat-input button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
+}
+
+.AgriChatMessageArea::-webkit-scrollbar {
+  width: 10px;
+}
+
+.AgriChatMessageArea::-webkit-scrollbar-track {
+  background: var(--farm-cream);
+}
+
+.AgriChatMessageArea::-webkit-scrollbar-thumb {
+  background: var(--farm-green-dark);
+  border-radius: 5px;
+}
+
+.AgriChatMessageArea::-webkit-scrollbar-thumb:hover {
+  background: var(--farm-green-light);
+}
+
+.AgriChatInputBar input:focus,
+.AgriChatInputBar button:focus {
+  outline: 2px solid var(--farm-green-dark);
+  outline-offset: 2px;
+}
+
+.AgriChatHeader {
+  aria-label: "AgriChat AI Farming Assistant Header";
+}
+
+.AgriChatInputBar input {
+  aria-label: "Type your farming question";
+}
+
+.AgriChatInputBar button {
+  aria-label: "Send message";
+}
+
+/* New styles for MessageTimestamp and ClearChatButton */
+.MessageTimestamp {
+  font-size: 0.8rem;
+  color: var(--farm-brown);
+  opacity: 0.7;
+  margin-top: 5px;
+  display: block;
+  text-align: right;
+}
+
+.MessageBubbleBot .MessageTimestamp {
+  text-align: left;
+}
+
+.ErrorMessage {
+  text-align: center;
+  color: #d32f2f;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 20px 0;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.ClearChatButton {
+  margin-left: 10px;
+  padding: 15px 20px;
+  background: linear-gradient(90deg, #d32f2f, #ef5350);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 5px 15px var(--shadow-light);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ClearChatButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px var(--shadow-dark);
+}
+
+.ClearChatButton:disabled {
+  background: #b0b0b0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

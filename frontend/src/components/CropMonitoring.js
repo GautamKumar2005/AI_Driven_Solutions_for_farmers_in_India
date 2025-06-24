@@ -178,14 +178,7 @@ function CropMonitoring() {
                             className="file-input"
                         />
                     </label>
-                    <div className="text-input-container">
-                        <textarea
-                            placeholder="Optional: Describe your plant's condition"
-                            value={textDescription}
-                            onChange={handleTextChange}
-                            className="text-description"
-                        />
-                    </div>
+                    
                     <button type="submit" className="analyze-btn" disabled={loading}>
                         {loading ? 'Analyzing...' : 'Analyze Crop'}
                     </button>
