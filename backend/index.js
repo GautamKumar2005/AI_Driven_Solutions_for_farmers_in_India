@@ -480,6 +480,14 @@ app.get('/scrape', async (req, res) => {
 });
 
 // Start server
+// Serve React frontend
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Catch all unmatched routes and send React's index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
+
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
 
