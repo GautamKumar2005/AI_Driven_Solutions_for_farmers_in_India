@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import "./drone.css"; // Import CSS
 
-const socket = io("http://localhost:5000"); // Change this to your backend URL
+const socket = io("https://agriconnect-k5uz.onrender.com/"); // Change this to your backend URL
 
 const DroneStream = () => {
     const [frame, setFrame] = useState(null);
@@ -25,7 +25,7 @@ const DroneStream = () => {
             return;
         }
         try {
-            const response = await fetch("http://localhost:5000/api/drone/start-stream", {
+            const response = await fetch("https://agriconnect-k5uz.onrender.com/api/drone/start-stream", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ rtspUrl }),
@@ -40,7 +40,7 @@ const DroneStream = () => {
 
     const stopStream = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/drone/stop-stream", {
+            const response = await fetch("https://agriconnect-k5uz.onrender.com/api/drone/stop-stream", {
                 method: "POST",
             });
             const data = await response.json();
