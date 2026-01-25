@@ -48,7 +48,7 @@ const AgriChat = () => {
     }, 10000);
 
     try {
-      const res = await fetch("http://localhost:5000/chat", {
+      const res = await fetch("https://agriconnect-k5uz.onrender.com/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: trimmed }),
