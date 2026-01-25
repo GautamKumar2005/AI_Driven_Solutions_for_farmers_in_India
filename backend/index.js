@@ -257,7 +257,7 @@ bot.on('photo', async (msg) => {
     });
 
     // Send to /pest-detection route
-    const pestResponse = await axios.post('http://localhost:5000/pest-detection', form, {
+    const pestResponse = await axios.post('https://agriconnect-k5uz.onrender.com/pest-detection', form, {
       headers: {
         ...form.getHeaders(),
       },
@@ -314,10 +314,10 @@ bot.on('photo', async (msg) => {
 bot.onText(/\/cropmonitoring/, async (msg) => {
   const chatId = msg.chat.id;
   try {
-    const response = await axios.get('http://localhost:5000/api/crop-monitoring');
+    const response = await axios.get('https://agriconnect-k5uz.onrender.com/api/crop-monitoring');
     bot.sendMessage(
       chatId,
-      `${response.data.message}\nVisit: http://localhost:3000/crop-monitoring`
+      `${response.data.message}\nVisit: https://agriconnect-k5uz.onrender.com/crop-monitoring`
     );
   } catch (error) {
     console.error('Error fetching crop data:', error.message);
@@ -328,10 +328,10 @@ bot.onText(/\/cropmonitoring/, async (msg) => {
 bot.onText(/\/community/, async (msg) => {
   const chatId = msg.chat.id;
   try {
-    const response = await axios.get('http://localhost:5000/api/community');
+    const response = await axios.get('https://agriconnect-k5uz.onrender.com/api/community');
     bot.sendMessage(
       chatId,
-      `${response.data.message}\nVisit: http://localhost:3000/community`
+      `${response.data.message}\nVisit: https://agriconnect-k5uz.onrender.com/community`
     );
   } catch (error) {
     console.error('Error fetching community data:', error.message);
@@ -342,7 +342,7 @@ bot.onText(/\/community/, async (msg) => {
 bot.onText(/\/buyerconnection/, async (msg) => {
   const chatId = msg.chat.id;
   try {
-    const response = await axios.get('http://localhost:5000/api/buyer-connection');
+    const response = await axios.get('https://agriconnect-k5uz.onrender.com/api/buyer-connection');
     let message = 'Available Farmers:\n';
     response.data.farmers.forEach((farmer) => {
       message += `\n${farmer.name} (ID: ${farmer.id})\n`;
@@ -350,7 +350,7 @@ bot.onText(/\/buyerconnection/, async (msg) => {
         message += `  ${crop.name}: ${crop.yield} kg, ₹${crop.price}/kg\n`;
       });
     });
-    message += '\nVisit: http://localhost:3000/buyer-connection';
+    message += '\nVisit: https://agriconnect-k5uz.onrender.com/buyer-connection';
     await bot.sendMessage(chatId, message);
   } catch (error) {
     console.error('Error fetching buyer connection data:', error.message);
@@ -362,10 +362,10 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const farmerId = match[1];
   try {
-    const response = await axios.get(`http://localhost:5000/api/chat/${farmerId}`);
+    const response = await axios.get(`https://agriconnect-k5uz.onrender.com/api/chat/${farmerId}`);
     bot.sendMessage(
       chatId,
-      `${response.data.message}\nVisit: http://localhost:3000/chat/${farmerId}`
+      `${response.data.message}\nVisit: https://agriconnect-k5uz.onrender.com/chat/${farmerId}`
     );
   } catch (error) {
     console.error('Error fetching chat data:', error.message);
