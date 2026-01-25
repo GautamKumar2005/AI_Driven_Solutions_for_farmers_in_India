@@ -8,7 +8,7 @@ const GlobalCropTrends = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const res = await fetch('http://localhost:5000/scrape');
+        const res = await fetch('https://agriconnect-k5uz.onrender.com/scrape');
         const data = await res.json();
         setArticle(data.article);
       } catch (error) {
