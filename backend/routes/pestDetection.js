@@ -79,7 +79,7 @@ router.post('/', async (req, res) => {
                         // Create proper URL for the marked image
                         if (result.marked_image_path) {
                             const markedImageName = path.basename(result.marked_image_path);
-                            result.marked_image_url = `http://localhost:5000/uploads/${markedImageName}`;
+                            result.marked_image_url = `https://agriconnect-k5uz.onrender.com/uploads/${markedImageName}`;
                             console.log('Marked Image URL:', result.marked_image_url);
                         }
                         
