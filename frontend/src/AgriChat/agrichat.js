@@ -1,128 +1,170 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import "./Agrichat.css";
 
 const AgriChat = () => {
   const [messages, setMessages] = useState(() => {
-    // Load messages from localStorage on mount
-    const savedMessages = localStorage.getItem("agriChatMessages");
-    return savedMessages ? JSON.parse(savedMessages) : [];
+    const saved = localStorage.getItem("agriChatMessages");
+    return saved ? JSON.parse(saved) : [];
   });
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const chatContainerRef = useRef(null);
 
-  // Scroll to bottom when messages change
+  // Auto-scroll to bottom
   useEffect(() => {
-    chatContainerRef.current?.scrollTo(0, chatContainerRef.current.scrollHeight);
-  }, [messages]);
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages, loading]);
 
-  // Save messages to localStorage
+  // Persist messages
   useEffect(() => {
     localStorage.setItem("agriChatMessages", JSON.stringify(messages));
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    const trimmed = input.trim();
+    if (!trimmed || loading) return;
 
     const userMessage = {
       role: "user",
-      content: input,
+      content: trimmed,
       timestamp: new Date().toLocaleTimeString("en-US", { hour12: true }),
     };
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
     setError(null);
 
-    // Timeout for loading state
-    const timeout = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setLoading(false);
-      setError("Request timed out. Please try again.");
+      setError("Request timed out (10s). Try again.");
     }, 10000);
 
     try {
-      const response = await fetch("http://localhost:5000/chat", {
+      const res = await fetch("http://localhost:5000/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: trimmed }),
       });
 
-      clearTimeout(timeout);
+      clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
+      if (!res.ok) {
+        throw new Error(`Server responded with ${res.status}`);
       }
 
-      const data = await response.json();
+      const data = await res.json();
       const botMessage = {
         role: "bot",
-        content: data.reply,
+        content: data.reply || "No reply received.",
         timestamp: new Date().toLocaleTimeString("en-US", { hour12: true }),
       };
+
       setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-      console.error("Error fetching response:", error);
-      setError("Something went wrong. Please try again!");
+    } catch (err) {
+      console.error("Chat error:", err);
+      setError("Could not get response. Check connection or try later.");
       setMessages((prev) => [
         ...prev,
-        { role: "bot", content: "Something went wrong. Please try again!", timestamp: new Date().toLocaleTimeString("en-US", { hour12: true }) },
+        {
+          role: "bot",
+          content: "⚠️ Sorry, something went wrong. Please try again.",
+          timestamp: new Date().toLocaleTimeString("en-US", { hour12: true }),
+        },
       ]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle Enter key press
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !loading) {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !loading) {
+      e.preventDefault();
       sendMessage();
     }
   };
 
-  // Clear chat history
   const clearChat = () => {
-    setMessages([]);
-    localStorage.removeItem("agriChatMessages");
+    if (window.confirm("Clear all chat history?")) {
+      setMessages([]);
+      localStorage.removeItem("agriChatMessages");
+    }
   };
 
   return (
-    <div className="AgriChatContainer" role="region" aria-label="AgriChat Interface">
-      <div className="AgriChatHeader">🌿 AgriChat - AI Farming Assistant</div>
+    <div className="AgriChatContainer" role="region" aria-label="AgriChat – AI Farming Assistant">
+      <div className="AgriChatHeader">🌾 AgriChat – Smart Farming Assistant</div>
+
       <div className="AgriChatMessageArea" ref={chatContainerRef}>
-        {messages.map((msg, index) => (
+        {messages.length === 0 && (
+          <div className="EmptyState">
+            <p>Ask anything about farming, crops, soil, pests, weather-based advice...</p>
+            <small>🌱 Your conversation is saved in the browser</small>
+          </div>
+        )}
+
+        {messages.map((msg, idx) => (
           <div
-            key={index}
-            className={`message ${msg.role === "user" ? "MessageBubbleUser" : "MessageBubbleBot"}`}
-            role="article"
-            aria-label={msg.role === "user" ? "User message" : "Bot response"}
+            key={idx}
+            className={`message-wrapper ${msg.role === "user" ? "user" : "bot"}`}
           >
-            <pre>{msg.content}</pre>
-            <span className="MessageTimestamp">{msg.timestamp}</span>
+            <div className={`message-bubble ${msg.role}`}>
+              <div className="message-content">
+                {msg.content.split("\n").map((line, i) => (
+                  <p key={i} style={{ margin: "0.35em 0" }}>
+                    {line || <br />}
+                  </p>
+                ))}
+              </div>
+              <span className="message-timestamp">{msg.timestamp}</span>
+            </div>
           </div>
         ))}
-        {loading && <p className="LoadingSpinnerTractor" aria-live="polite">Thinking...</p>}
-        {error && <p className="ErrorMessage" aria-live="assertive">{error}</p>}
+
+        {loading && (
+          <div className="loading-message bot">
+            <div className="message-bubble bot">
+              <span className="typing">🌱 Thinking...</span>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="error-message">
+            <p>{error}</p>
+          </div>
+        )}
       </div>
+
       <div className="AgriChatInputBar">
         <input
           type="text"
-          placeholder="Ask about farming..."
+          placeholder="Ask about crops, soil, fertilizer, monsoon timing..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          aria-label="Type your farming question"
+          onKeyDown={handleKeyDown}
           disabled={loading}
+          aria-label="Your farming question"
         />
-        <button onClick={sendMessage} disabled={loading} aria-label="Send message">
-          {loading ? "Loading..." : "Send"}
+        <button
+          onClick={sendMessage}
+          disabled={loading || !input.trim()}
+          aria-label="Send message"
+        >
+          {loading ? "..." : "➤"}
         </button>
         <button
           onClick={clearChat}
-          className="ClearChatButton"
-          aria-label="Clear chat history"
+          className="clear-btn"
           disabled={loading || messages.length === 0}
+          aria-label="Clear conversation"
         >
           Clear
         </button>

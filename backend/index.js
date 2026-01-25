@@ -13,10 +13,13 @@ const socketIo = require('socket.io');
 const TelegramBot = require('node-telegram-bot-api');
 const FormData = require('form-data');
 const fs = require('fs').promises;
+const Auth =require('./routes/signup');
+const { GoogleGenAI } = require('@google/genai');
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Importing routes
-const signupRoutes = require('./routes/signup');
+
 const cropMonitoringRoutes = require('./routes/cropMonitoring');
 const pestDetectionRoutes = require('./routes/pestDetection');
 const offlineDataRoutes = require('./routes/offlineData');
@@ -90,7 +93,7 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
-app.use('/signup', signupRoutes);
+app.use('/auth/register', Auth);
 app.use('/crop-monitoring', cropMonitoringRoutes);
 app.use('/pest-detection', pestDetectionRoutes);
 app.use('/offline-data', offlineDataRoutes);
@@ -129,8 +132,13 @@ app.get('/api/chat/:farmerId', (req, res) => {
 });
 
 // Chatbot route
+ // Using the latest SDK
+
+// Chatbot route
+   // or use import if you're using ESM
+
 app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;
+  const userMessage = req.body.message?.trim();
 
   if (!userMessage) {
     return res.status(400).json({ reply: 'Message is required.' });
@@ -138,38 +146,78 @@ app.post('/chat', async (req, res) => {
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    const modelName = "gemini-1.5-flash";
-
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not set in environment variables.");
+      throw new Error("GEMINI_API_KEY is missing in environment variables.");
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelName });
+    // Initialize the client
+    const ai = new GoogleGenAI({ apiKey });
 
-    const result = await model.generateContent([
-      {
-        text: "You are a helpful assistant. Respond to the following user message: " + userMessage,
+    // Valid model names in early 2026 (stable ones):
+    // - gemini-2.0-flash
+    // - gemini-2.0-flash-lite
+    // - gemini-2.5-flash
+    // - gemini-2.5-pro
+    // Add "-latest" only if you really want bleeding edge
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",                    // ← works reliably now
+
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: userMessage }]
+        }
+      ],
+
+      // Note: config → generationConfig (not "config")
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.95,
+        // maxOutputTokens: 8192,    // optional – uncomment if needed
       },
-    ]);
 
-    let botReply = result.response.text().trim();
+      // Optional: add safety if you want less filtering
+      // safetySettings: [ ... ]
+    });
 
-    // Format response to match previous style
+    // Access the text – new SDK uses .text() method
+    let botReply = response.text()?.trim() || "No response generated.";
+
+    // Your formatting (I kept it almost the same, just cleaned regex a bit)
     botReply = botReply
-      .replace(/\*\*(.*?)\*\*/g, '🌟 *$1*')
-      .replace(/(\n)+/g, '\n\n')
+      .replace(/\*\*(.*?)\*\*/g, '🌟 **$1**')
+      .replace(/(\n){3,}/g, '\n\n')
       .replace(/^- /gm, '✅ ')
-      .replace(/\*\s/g, '➡️ ')
+      .replace(/^\* /gm, '➡️ ')
       .trim();
 
     return res.json({ reply: botReply });
+
   } catch (error) {
-    console.error('Error generating response:', error.message, error.stack);
-    return res.status(500).json({ reply: 'Error processing request.' });
+    console.error("Gemini error:", {
+      message: error.message,
+      status: error.status,
+      details: error.errorDetails || error.cause,
+    });
+
+    let userMsg = "⚠️ Sorry, something went wrong. Please try again.";
+
+    if (error.status === 404 || error.message?.includes("not found")) {
+      userMsg = "⚠️ Model not available right now. Try 'gemini-2.0-flash' or 'gemini-2.5-flash'.";
+    } else if (error.status === 429) {
+      userMsg = "Rate limit reached – wait 1–2 minutes.";
+    } else if (error.status === 400) {
+      userMsg += " (Invalid request – check model name or format)";
+    } else if (error.status === 500) {
+      userMsg += " (Google server issue – retry in a few minutes)";
+    }
+
+    return res.status(error.status || 500).json({
+      reply: userMsg,
+      errorDetail: error.message?.substring(0, 200) || "Unknown error"
+    });
   }
 });
-
 // Telegram Bot Commands
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
@@ -327,7 +375,7 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 
 // Scrape pricing info
 async function scrapePricingInfo() {
-  const url = 'https://www.pib.gov.in/PressReleaseDetail.aspx?PRID=2112400';
+  const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
   let browser;
   try {
     console.log(`Navigating to ${url}`);

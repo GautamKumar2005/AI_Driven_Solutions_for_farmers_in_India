@@ -34,8 +34,7 @@ router.post('/', async (req, res) => {
 
         // Use the correct path to the Python script
         const pythonScriptPath = path.resolve(__dirname, '../../ai/pest_Detection.py');
-        const pythonExePath = 'C:\\Users\\gauta\\anaconda3\\python.exe';
-
+        const pythonExePath = process.env.PYTHON_EXECUTABLE || 'C:\\Users\\gauta\\anaconda3\\python.exe';
         // Verify the Python script exists
         if (!fs.existsSync(pythonScriptPath)) {
             console.error('Python script not found at:', pythonScriptPath);
