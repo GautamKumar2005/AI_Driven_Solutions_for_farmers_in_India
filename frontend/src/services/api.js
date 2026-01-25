@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://agriconnect-k5uz.onrender.com/';
 
 export const analyzeCrop = (data) => {
     return axios.post(`${API_URL}/crop-monitoring`, data);
