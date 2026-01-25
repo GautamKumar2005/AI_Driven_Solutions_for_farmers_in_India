@@ -35,7 +35,7 @@ function PestDetection() {
         formData.append('image', image);
 
         try {
-            const response = await axios.post('http://localhost:5000/pest-detection', formData, {
+            const response = await axios.post('https://agriconnect-k5uz.onrender.com/pest-detection', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             
