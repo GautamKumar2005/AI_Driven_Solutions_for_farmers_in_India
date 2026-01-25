@@ -53,7 +53,7 @@ function CropMonitoring() {
         setResult(null);
 
         try {
-            const response = await axios.post('http://localhost:5000/crop-monitoring', formData, {
+            const response = await axios.post('https://agriconnect-k5uz.onrender.com/crop-monitoring', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
