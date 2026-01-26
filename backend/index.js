@@ -379,71 +379,52 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 // Scrape Pricing Info
 // ---------------- SCRAPE PRICING INFO ----------------;
 
+
+
 async function scrapePricingInfo() {
   const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
-  let browser;
 
-  try {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+  const { data } = await axios.get(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0' },
+    timeout: 20000
+  });
+
+  const $ = cheerio.load(data);
+
+  const results = [];
+  let currentCategory = '';
+
+  $('table tr').each((_, row) => {
+    const cols = $(row).find('td');
+    if (cols.length < 2) return;
+
+    const crop = $(cols[0]).text().trim();
+    const price = $(cols[cols.length - 1]).text().trim();
+
+    // Detect category/header rows
+    if (!price || price.includes('KMS') || price === '-') {
+      currentCategory = crop;
+      return;
+    }
+
+    results.push({
+      category: currentCategory || 'Other',
+      crop,
+      price
     });
+  });
 
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-
-    await page.waitForSelector('table', { timeout: 30000 });
-
-    const data = await page.evaluate(() => {
-      const rows = Array.from(document.querySelectorAll('table tr'));
-      const result = [];
-
-      let currentCategory = '';
-
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 2) return;
-
-        const crop = cells[0].innerText.trim();
-        const price = cells[cells.length - 1].innerText.trim();
-
-        // Category rows (no price or weird header text)
-        if (!price || price.includes('KMS') || price === '-') {
-          currentCategory = crop;
-          return;
-        }
-
-        result.push({
-          category: currentCategory,
-          crop,
-          price
-        });
-      });
-
-      return result;
-    });
-
-    await browser.close();
-    return data;
-
-  } catch (err) {
-    if (browser) await browser.close();
-    throw err;
-  }
+  return results;
 }
-
 
 // API route
 app.get('/pricing-info', async (req, res) => {
   try {
-    const pricing = await scrapePricingInfo();
-    res.json(pricing);
+    const data = await scrapePricingInfo();
+    res.json(data);
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      error: 'Scraping failed',
-      details: err.message
-    });
+    res.status(500).json({ error: 'Scraping failed' });
   }
 });
 
