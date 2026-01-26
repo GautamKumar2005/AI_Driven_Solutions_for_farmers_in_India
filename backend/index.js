@@ -381,52 +381,52 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 
 
 
-async function scrapePricingInfo() {
-  const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
+// async function scrapePricingInfo() {
+//   const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
 
-  const { data } = await axios.get(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0' },
-    timeout: 20000
-  });
+//   const { data } = await axios.get(url, {
+//     headers: { 'User-Agent': 'Mozilla/5.0' },
+//     timeout: 20000
+//   });
 
-  const $ = cheerio.load(data);
+//   const $ = cheerio.load(data);
 
-  const results = [];
-  let currentCategory = '';
+//   const results = [];
+//   let currentCategory = '';
 
-  $('table tr').each((_, row) => {
-    const cols = $(row).find('td');
-    if (cols.length < 2) return;
+//   $('table tr').each((_, row) => {
+//     const cols = $(row).find('td');
+//     if (cols.length < 2) return;
 
-    const crop = $(cols[0]).text().trim();
-    const price = $(cols[cols.length - 1]).text().trim();
+//     const crop = $(cols[0]).text().trim();
+//     const price = $(cols[cols.length - 1]).text().trim();
 
-    // Detect category/header rows
-    if (!price || price.includes('KMS') || price === '-') {
-      currentCategory = crop;
-      return;
-    }
+//     // Detect category/header rows
+//     if (!price || price.includes('KMS') || price === '-') {
+//       currentCategory = crop;
+//       return;
+//     }
 
-    results.push({
-      category: currentCategory || 'Other',
-      crop,
-      price
-    });
-  });
+//     results.push({
+//       category: currentCategory || 'Other',
+//       crop,
+//       price
+//     });
+//   });
 
-  return results;
-}
+//   return results;
+// }
 
-// API route
-app.get('/pricing-info', async (req, res) => {
-  try {
-    const data = await scrapePricingInfo();
-    res.json(data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Scraping failed' });
-  }
-});
+// // API route
+// app.get('/pricing-info', async (req, res) => {
+//   try {
+//     const data = await scrapePricingInfo();
+//     res.json(data);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Scraping failed' });
+//   }
+// });
 
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
