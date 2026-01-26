@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 
 # ------------------------
-# System + Chromium deps (IMPORTANT for Puppeteer)
+# System + Chromium deps
 # ------------------------
 RUN apt-get update && apt-get install -y \
     curl \
@@ -28,45 +28,45 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     libgl1 \
     chromium \
-    chromium-sandbox \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Puppeteer will use system Chromium (not download its own)
+# ------------------------
+# Puppeteer config
+# ------------------------
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 WORKDIR /app
 
 # ------------------------
-# Copy only dependency files first (caching)
+# Copy dependency files first
 # ------------------------
 COPY frontend/package*.json frontend/
 COPY backend/package*.json backend/
 COPY ai/requirements.txt ai/
 
 # ------------------------
-# Install deps
+# Install dependencies
 # ------------------------
-
 RUN cd frontend && npm install
 RUN cd backend && npm install
 RUN pip install --no-cache-dir -r ai/requirements.txt
 
 # ------------------------
-# Copy full source
+# Copy full project
 # ------------------------
 COPY . .
 
 # ------------------------
-# Build frontend
+# Build React frontend
 # ------------------------
 RUN cd frontend && npm run build
 
 # ------------------------
-# Render port
+# Expose Render port
 # ------------------------
 EXPOSE 10000
 
