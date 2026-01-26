@@ -1,81 +1,62 @@
-.pricing-info-container {
-  max-width: 1100px;
+.pricing-container {
+  max-width: 950px;
   margin: 40px auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  font-family: Arial, sans-serif;
+  padding: 25px 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fdfdfd;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  border-radius: 12px;
 }
 
-.pricing-info-container h2 {
+/* Top announcement header */
+.announcement-header {
+  background-color: #fffae6;
+  border-left: 6px solid #f39c12;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #7f6000;
+  border-radius: 5px;
+}
+
+.pricing-container h1 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #1f4f1f;
+  margin-bottom: 25px;
+  color: #2c3e50;
+  font-size: 1.8rem;
 }
 
-/* Table */
-
-.pricing-info-table {
+.pricing-table {
   width: 100%;
   border-collapse: collapse;
-  overflow: hidden;
+  margin-bottom: 20px;
 }
 
-.pricing-info-table thead {
-  background: #2f7d32;
-  color: white;
-}
-
-.pricing-info-table th,
-.pricing-info-table td {
-  padding: 12px 14px;
+.pricing-table th,
+.pricing-table td {
+  padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #e0e0e0;
 }
 
-.pricing-info-table th {
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.pricing-table thead {
+  background: #2c3e50;
+  color: #fff;
+  font-weight: bold;
 }
 
-/* Zebra rows */
-.pricing-info-table tbody tr:nth-child(even) {
-  background: #f6faf6;
+.pricing-table tbody tr:nth-child(even) {
+  background: #f4f4f4;
 }
 
-/* Hover effect */
-.pricing-info-table tbody tr:hover {
-  background: #e9f5ea;
-  transition: 0.2s ease;
+.pricing-table tbody tr:hover {
+  background: #d1e7ff;
+  transition: 0.3s;
 }
 
-/* Category styling */
-.category-cell {
-  font-weight: 600;
-  color: #256d25;
-}
-
-/* Loading & error */
-
-.pricing-loading,
-.pricing-error {
+.disclaimer {
+  font-size: 0.85rem;
+  color: #555;
   text-align: center;
-  font-size: 18px;
-  margin-top: 50px;
-  color: #444;
-}
-
-/* Mobile responsive */
-
-@media (max-width: 768px) {
-  .pricing-info-table th,
-  .pricing-info-table td {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .pricing-info-container {
-    padding: 15px;
-  }
+  margin-top: 10px;
 }
