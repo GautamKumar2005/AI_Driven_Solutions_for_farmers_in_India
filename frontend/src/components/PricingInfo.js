@@ -4,30 +4,18 @@ import '../styles/PricingInfo.css';
 function PricingInfo() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch('https://agriconnect-k5uz.onrender.com/pricing-info');
-
-        if (!res.ok) throw new Error(`Server error ${res.status}`);
-
-        const json = await res.json();
-        setRows(json);
-      } catch (err) {
-        setError(err.message);
-      } finally {
+    fetch('https://agriconnect-k5uz.onrender.com/pricing-info')
+      .then(res => res.json())
+      .then(data => {
+        setRows(data);
         setLoading(false);
-      }
-    }
-
-    loadData();
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="pricing-loading">Loading MSP prices...</p>;
-
-  if (error) return <p className="pricing-error">Failed: {error}</p>;
+  if (loading) return <p>Loading MSP prices...</p>;
 
   return (
     <div className="pricing-info-container">
@@ -38,21 +26,19 @@ function PricingInfo() {
           <tr>
             <th>Category</th>
             <th>Crop</th>
-            <th>Price (₹)</th>
+            <th>Price</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => (
             <tr key={i}>
-              <td className="category-cell">{row.category}</td>
+              <td>{row.category}</td>
               <td>{row.crop}</td>
               <td>{row.price}</td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {rows.length === 0 && <p>No pricing data found.</p>}
     </div>
   );
 }
