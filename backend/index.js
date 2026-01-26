@@ -377,9 +377,7 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 });
 // -----------------------------
 // Scrape Pricing Info
-// ---------------- SCRAPE PRICING INFO ----------------
-
-const puppeteer = require('puppeteer');
+// ---------------- SCRAPE PRICING INFO ----------------;
 
 async function scrapePricingInfo() {
   const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
