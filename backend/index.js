@@ -379,112 +379,73 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 // Scrape Pricing Info
 // ---------------- SCRAPE PRICING INFO ----------------
 
+const puppeteer = require('puppeteer');
+
 async function scrapePricingInfo() {
   const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
   let browser;
+
   try {
-    console.log('Launching Puppeteer...');
     browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--single-process'
-      ],
-      timeout: 90000
+      headless: "new",
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36'
-    );
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-    console.log('Opening page...');
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-    await page.waitForTimeout(5000); // Give more time for dynamic content
+    await page.waitForSelector('table', { timeout: 30000 });
 
-    let pricingData = [];
-    let currentCategory = '';
+    const data = await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll('table tr'));
+      const result = [];
 
-    // Prefer iframe if present (many PIB pages embed tables in iframes)
-    const iframeHandle = await page.$('iframe');
-    let target = page;
-    if (iframeHandle) {
-      console.log('Using iframe');
-      const frame = await iframeHandle.contentFrame();
-      if (frame) target = frame;
-    }
-
-    // Wait for table
-    try {
-      await target.waitForSelector('.table-responsive table, table', { timeout: 30000 });
-    } catch (e) {
-      console.log('No table found');
-    }
-
-    pricingData = await target.evaluate(() => {
-      const out = [];
       let currentCategory = '';
 
-      document.querySelectorAll('.table-responsive table tr, table tr').forEach(row => {
-        const cells = row.querySelectorAll('td, th');
-        if (cells.length < 2) return; // skip useless rows
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 2) return;
 
-        const texts = Array.from(cells).map(cell => cell.innerText.trim().replace(/\s+/g, ' '));
+        const crop = cells[0].innerText.trim();
+        const price = cells[cells.length - 1].innerText.trim();
 
-        // Skip completely empty or junk rows
-        if (texts.every(t => !t || t === '-' || t === '^')) return;
-
-        // Detect category headers (bold/big text, or rows with only 1-2 meaningful cells)
-        if (texts.length <= 3 && 
-            (texts[0]?.includes('Cereals') || texts[0]?.includes('Pulses') || 
-             texts[0]?.includes('Oilseeds') || texts[0]?.includes('Commercial'))) {
-          currentCategory = texts[0];
+        // Category rows (no price or weird header text)
+        if (!price || price.includes('KMS') || price === '-') {
+          currentCategory = crop;
           return;
         }
 
-        // Real crop rows usually have crop name in col 1 or 2, price in later col
-        // Looking for patterns like: number / crop / variety / price ...
-        const possibleCropIndex = texts.findIndex(t => t && !/^\d+$/.test(t) && !t.includes('Cost') && !t.includes('MSP'));
-        const possiblePriceIndex = texts.findIndex(t => /^\d+$/.test(t) || t.includes('/ quintal'));
-
-        if (possibleCropIndex >= 0 && possiblePriceIndex > possibleCropIndex) {
-          const cropFull = texts[possibleCropIndex] + (texts[possibleCropIndex + 1] ? ' ' + texts[possibleCropIndex + 1] : '');
-          const price = texts[possiblePriceIndex];
-
-          if (price && /^\d{4,}$/.test(price)) { // looks like valid price (e.g. 2369)
-            out.push({
-              category: currentCategory || 'Uncategorized',
-              crop: cropFull.trim(),
-              price: price + ' ₹/quintal'
-            });
-          }
-        }
+        result.push({
+          category: currentCategory,
+          crop,
+          price
+        });
       });
 
-      return out;
+      return result;
     });
 
-    console.log('Extracted rows:', pricingData.length);
-    return pricingData;
+    await browser.close();
+    return data;
 
   } catch (err) {
-    console.error('Scraping failed:', err.message);
+    if (browser) await browser.close();
     throw err;
-  } finally {
-    if (browser) await browser.close().catch(() => {});
   }
 }
 
+
+// API route
 app.get('/pricing-info', async (req, res) => {
   try {
-    const data = await scrapePricingInfo();
-    res.json(data);  // now sends [{category, crop, price}, ...]
+    const pricing = await scrapePricingInfo();
+    res.json(pricing);
   } catch (err) {
-    res.status(500).json({ error: 'Scraping failed', details: err.message });
+    console.error(err);
+    res.status(500).json({
+      error: 'Scraping failed',
+      details: err.message
+    });
   }
 });
 
