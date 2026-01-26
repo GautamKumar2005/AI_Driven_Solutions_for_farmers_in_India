@@ -382,13 +382,11 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 async function scrapePricingInfo() {
   const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
   let browser;
-
   try {
     console.log('Launching Puppeteer...');
-
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -400,85 +398,77 @@ async function scrapePricingInfo() {
     });
 
     const page = await browser.newPage();
-
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36'
     );
 
     console.log('Opening page...');
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-
-    // OLD puppeteer safe delay
-    await new Promise(r => setTimeout(r, 4000));
+    await page.waitForTimeout(5000); // Give more time for dynamic content
 
     let pricingData = [];
+    let currentCategory = '';
 
-    // -------- Try iframe --------
-    const iframe = await page.$('iframe');
+    // Prefer iframe if present (many PIB pages embed tables in iframes)
+    const iframeHandle = await page.$('iframe');
+    let target = page;
+    if (iframeHandle) {
+      console.log('Using iframe');
+      const frame = await iframeHandle.contentFrame();
+      if (frame) target = frame;
+    }
 
-    if (iframe) {
-      console.log('Iframe detected');
+    // Wait for table
+    try {
+      await target.waitForSelector('.table-responsive table, table', { timeout: 30000 });
+    } catch (e) {
+      console.log('No table found');
+    }
 
-      const frame = await iframe.contentFrame();
+    pricingData = await target.evaluate(() => {
+      const out = [];
+      let currentCategory = '';
 
-      if (frame) {
-        try {
-          await frame.waitForSelector('.table-responsive table', { timeout: 30000 });
+      document.querySelectorAll('.table-responsive table tr, table tr').forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells.length < 2) return; // skip useless rows
 
-          pricingData = await frame.evaluate(() => {
-            const out = [];
-            const table = document.querySelector('.table-responsive table');
-            if (!table) return out;
+        const texts = Array.from(cells).map(cell => cell.innerText.trim().replace(/\s+/g, ' '));
 
-            table.querySelectorAll('tr').forEach(row => {
-              const td = row.querySelectorAll('td');
-              if (td.length >= 4) {
-                out.push({
-                  crop: td[1].innerText.trim(),
-                  price: td[3].innerText.trim()
-                });
-              }
-            });
+        // Skip completely empty or junk rows
+        if (texts.every(t => !t || t === '-' || t === '^')) return;
 
-            return out;
-          });
-        } catch (e) {
-          console.log('Iframe table not found');
+        // Detect category headers (bold/big text, or rows with only 1-2 meaningful cells)
+        if (texts.length <= 3 && 
+            (texts[0]?.includes('Cereals') || texts[0]?.includes('Pulses') || 
+             texts[0]?.includes('Oilseeds') || texts[0]?.includes('Commercial'))) {
+          currentCategory = texts[0];
+          return;
         }
-      }
-    }
 
-    // -------- Fallback main page --------
-    if (pricingData.length === 0) {
-      console.log('Trying main page');
+        // Real crop rows usually have crop name in col 1 or 2, price in later col
+        // Looking for patterns like: number / crop / variety / price ...
+        const possibleCropIndex = texts.findIndex(t => t && !/^\d+$/.test(t) && !t.includes('Cost') && !t.includes('MSP'));
+        const possiblePriceIndex = texts.findIndex(t => /^\d+$/.test(t) || t.includes('/ quintal'));
 
-      try {
-        await page.waitForSelector('.table-responsive table', { timeout: 30000 });
+        if (possibleCropIndex >= 0 && possiblePriceIndex > possibleCropIndex) {
+          const cropFull = texts[possibleCropIndex] + (texts[possibleCropIndex + 1] ? ' ' + texts[possibleCropIndex + 1] : '');
+          const price = texts[possiblePriceIndex];
 
-        pricingData = await page.evaluate(() => {
-          const out = [];
-          const table = document.querySelector('.table-responsive table');
-          if (!table) return out;
+          if (price && /^\d{4,}$/.test(price)) { // looks like valid price (e.g. 2369)
+            out.push({
+              category: currentCategory || 'Uncategorized',
+              crop: cropFull.trim(),
+              price: price + ' ₹/quintal'
+            });
+          }
+        }
+      });
 
-          table.querySelectorAll('tr').forEach(row => {
-            const td = row.querySelectorAll('td');
-            if (td.length >= 4) {
-              out.push({
-                crop: td[1].innerText.trim(),
-                price: td[3].innerText.trim()
-              });
-            }
-          });
+      return out;
+    });
 
-          return out;
-        });
-      } catch (e) {
-        console.log('Main page table not found');
-      }
-    }
-
-    console.log('Rows found:', pricingData.length);
-
+    console.log('Extracted rows:', pricingData.length);
     return pricingData;
 
   } catch (err) {
@@ -489,46 +479,14 @@ async function scrapePricingInfo() {
   }
 }
 
-
-// ---------------- API ROUTES ----------------
-
 app.get('/pricing-info', async (req, res) => {
   try {
     const data = await scrapePricingInfo();
-    res.json(data);
+    res.json(data);  // now sends [{category, crop, price}, ...]
   } catch (err) {
-    res.status(500).json({
-      error: 'Scraping failed',
-      details: err.message
-    });
+    res.status(500).json({ error: 'Scraping failed', details: err.message });
   }
 });
-
-
-app.get('/scrape', async (req, res) => {
-  try {
-    const url = 'https://ourworldindata.org/agricultural-production';
-
-    const response = await axios.get(url, { timeout: 20000 });
-    const $ = cheerio.load(response.data);
-
-    const article = $('article').html();
-
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-
-    res.json({ article });
-
-  } catch (err) {
-    res.status(500).json({
-      error: 'Scrape failed',
-      details: err.message
-    });
-  }
-});
-
-
 
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
