@@ -5,18 +5,16 @@ const path = require('path');
 
 const router = express.Router();
 
-// Save uploaded image with unique filename
+// Save uploaded image
 const saveImage = (image) => {
     const uploadsDir = path.join(__dirname, '../uploads');
     if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true });
     }
-    
-    // Generate unique filename to prevent overwrites
+
     const uniqueFilename = `${Date.now()}-${image.name}`;
     const imagePath = path.join(uploadsDir, uniqueFilename);
-    
-    // Use fs.writeFileSync instead of image.mv for better compatibility
+
     fs.writeFileSync(imagePath, image.data);
     return imagePath;
 };
@@ -24,92 +22,79 @@ const saveImage = (image) => {
 router.post('/', async (req, res) => {
     try {
         if (!req.files || !req.files.image) {
-            console.log('No image uploaded');
             return res.status(400).json({ error: 'No image uploaded' });
         }
 
-        const { image } = req.files;
-        const imagePath = saveImage(image);
-        console.log('Image saved at:', imagePath);
+        const imagePath = saveImage(req.files.image);
+        console.log('Image saved:', imagePath);
 
-        // Use the correct path to the Python script
-        const pythonScriptPath = path.resolve(__dirname, '../../ai/pest_Detection.py');
-        const pythonExePath = process.env.PYTHON_EXECUTABLE || 'C:\\Users\\gauta\\anaconda3\\python.exe';
-        // Verify the Python script exists
+        // ✅ correct script path (lowercase name!)
+        const pythonScriptPath = path.resolve(__dirname, '../../ai/pest_detection.py');
+
         if (!fs.existsSync(pythonScriptPath)) {
-            console.error('Python script not found at:', pythonScriptPath);
             return res.status(500).json({ error: 'Python script not found' });
         }
 
-        // Verify the Python executable exists
-        if (!fs.existsSync(pythonExePath)) {
-            console.error('Python executable not found at:', pythonExePath);
-            return res.status(500).json({ error: 'Python executable not found' });
-        }
-
-        console.log('Running Python script:', pythonScriptPath, 'with image:', imagePath);
-        const python = spawn(pythonExePath, [pythonScriptPath, imagePath]);
+        // ✅ Always use python (works everywhere)
+        const python = spawn('python', [pythonScriptPath, imagePath]);
 
         let output = '';
         let errorOutput = '';
 
-        python.stdout.on('data', (data) => {
+        python.stdout.on('data', data => {
             output += data.toString();
-            console.log('Python Output:', data.toString().trim());
         });
 
-        python.stderr.on('data', (data) => {
+        python.stderr.on('data', data => {
             errorOutput += data.toString();
-            console.error('Python Error:', data.toString().trim());
+            console.error('Python error:', data.toString());
         });
 
-        python.stdout.on('close', (code) => {
-            console.log('Python exited with code:', code);
-            
-            if (code === 0 || code === false) { // Handle both 0 and false as success
-                try {
-                    // Find the JSON part of the output
-                    const jsonStart = output.indexOf('{');
-                    const jsonEnd = output.lastIndexOf('}') + 1;
-                    
-                    if (jsonStart >= 0 && jsonEnd > jsonStart) {
-                        const jsonString = output.substring(jsonStart, jsonEnd);
-                        const result = JSON.parse(jsonString);
-                        
-                        // Create proper URL for the marked image
-                        if (result.marked_image_path) {
-                            const markedImageName = path.basename(result.marked_image_path);
-                            result.marked_image_url = `https://agriconnect-k5uz.onrender.com/uploads/${markedImageName}`;
-                            console.log('Marked Image URL:', result.marked_image_url);
-                        }
-                        
-                        // Return the result directly
-                        res.json(result);
-                    } else {
-                        throw new Error("No valid JSON found in output");
-                    }
-                } catch (parseError) {
-                    console.error('Failed to parse Python output:', parseError, 'Output:', output);
-                    res.status(500).json({ error: 'Invalid Python output', details: output });
+        python.on('close', code => {
+            if (code !== 0) {
+                return res.status(500).json({
+                    error: 'Python script failed',
+                    details: errorOutput
+                });
+            }
+
+            try {
+                const jsonStart = output.indexOf('{');
+                const jsonEnd = output.lastIndexOf('}') + 1;
+
+                if (jsonStart === -1) {
+                    throw new Error("No JSON in output");
                 }
-            } else {
-                console.error('Python script failed with code:', code, 'Error:', errorOutput);
-                res.status(500).json({ error: 'Python script failed', details: errorOutput });
+
+                const result = JSON.parse(output.substring(jsonStart, jsonEnd));
+
+                if (result.marked_image_path) {
+                    const name = path.basename(result.marked_image_path);
+                    result.marked_image_url = `https://agriconnect-k5uz.onrender.com/uploads/${name}`;
+                }
+
+                res.json(result);
+
+            } catch (err) {
+                res.status(500).json({
+                    error: 'Invalid Python output',
+                    details: output
+                });
             }
         });
-        
-        // Handle potential errors in the spawn process itself
-        python.on('error', (error) => {
-            console.error('Failed to start Python process:', error);
-            res.status(500).json({ 
-                error: 'Failed to start image analysis process', 
-                details: error.message 
+
+        python.on('error', err => {
+            res.status(500).json({
+                error: 'Python failed to start',
+                details: err.message
             });
         });
-        
-    } catch (error) {
-        console.error('Server Error:', error);
-        res.status(500).json({ error: 'Server error', details: error.message });
+
+    } catch (err) {
+        res.status(500).json({
+            error: 'Server error',
+            details: err.message
+        });
     }
 });
 
