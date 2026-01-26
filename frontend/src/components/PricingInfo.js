@@ -1,77 +1,69 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/PricingInfo.css'; // Import your CSS file for styling
+import '../styles/PricingInfo.css';
 
 function PricingInfo() {
-    const [pricingInfo, setPricingInfo] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [pricingInfo, setPricingInfo] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        async function fetchPricingInfo() {
-            try {
-                console.log('Fetching pricing info... ');
-                const response = await fetch('https://agriconnect-k5uz.onrender.com/pricing-info');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                console.log('Fetched data:', data);
-                setPricingInfo(data);
-            } catch (error) {
-                console.error('Error fetching pricing info:', error);
-                setError(error.toString());
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchPricingInfo();
-    }, []);
+  useEffect(() => {
+    async function fetchPricingInfo() {
+      try {
+        const response = await fetch(
+          'https://agriconnect-k5uz.onrender.com/pricing-info'
+        );
 
-    if (loading) {
-        return <p>Loading...</p>;
+        if (!response.ok) throw new Error('Failed to fetch data');
+
+        const data = await response.json();
+
+        // ✅ Clean scraped junk rows
+        const cleaned = data.filter(item =>
+          item.crop &&
+          item.price &&
+          item.crop !== 'Crops' &&
+          item.price !== '-' &&
+          !item.price.includes('Cost')
+        );
+
+        setPricingInfo(cleaned);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    if (error) {
-        return <p>Error: {error}</p>;
-    }
+    fetchPricingInfo();
+  }, []);
 
-    // Group data by session year
-    const groupedData = pricingInfo.reduce((acc, item) => {
-        const sessionYear = item.price.match(/\d{4}-\d{2}/);
-        const key = sessionYear ? sessionYear[0] : 'Unknown';
-        if (!acc[key]) {
-            acc[key] = [];
-        }
-        acc[key].push(item);
-        return acc;
-    }, {});
+  if (loading) return <p>Loading pricing data...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-    return (
-        <div className="pricing-info-container">
-            <h2 className="pricing-info-title">Pricing Information Rs per Quintal</h2>
-            {Object.keys(groupedData).map(sessionYear => (
-                <React.Fragment key={sessionYear}>
-                    {sessionYear === 'Unknown' ? <h3 className="pricing-info-session-title">2025-26</h3> : <h3 className="pricing-info-session-title">{sessionYear}</h3>}
-                    <table className="pricing-info-table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Crop</th>
-                                <th>Price (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {groupedData[sessionYear].map((info, index) => (
-                                <tr key={index}>
-                                    <td>{info.crop}</td>
-                                    <td>{info.price}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </React.Fragment>
-            ))}
-        </div>
-    );
+  return (
+    <div className="pricing-info-container">
+      <h2 className="pricing-info-title">
+        MSP Pricing (₹ per Quintal) – 2025–26
+      </h2>
+
+      <table className="pricing-info-table">
+        <thead>
+          <tr>
+            <th>Crop</th>
+            <th>Price (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pricingInfo.map((item, index) => (
+            <tr key={index}>
+              <td>{item.crop}</td>
+              <td>{item.price}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 export default PricingInfo;
