@@ -1,170 +1,81 @@
-.pricing-info-page {
+.pricing-info-container {
   max-width: 1100px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 40px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  font-family: Arial, sans-serif;
 }
 
-.pricing-header {
+.pricing-info-container h2 {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 20px;
+  color: #1f4f1f;
 }
 
-.pricing-header h1 {
-  color: #1b5e20;
-  font-size: 2.1rem;
-  margin-bottom: 0.6rem;
-}
+/* Table */
 
-.source-info {
-  color: #555;
-  font-size: 0.95rem;
-  font-style: italic;
-}
-
-.table-container {
-  overflow-x: auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  background: white;
-}
-
-.msp-table {
+.pricing-info-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1rem;
+  overflow: hidden;
 }
 
-.msp-table th,
-.msp-table td {
-  padding: 14px 16px;
+.pricing-info-table thead {
+  background: #2f7d32;
+  color: white;
+}
+
+.pricing-info-table th,
+.pricing-info-table td {
+  padding: 12px 14px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
 }
 
-.msp-table th {
-  background: #2e7d32;
-  color: white;
+.pricing-info-table th {
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.msp-table tr:nth-child(even) {
-  background-color: #f5fbf5;
+/* Zebra rows */
+.pricing-info-table tbody tr:nth-child(even) {
+  background: #f6faf6;
 }
 
-.msp-table tr:hover {
-  background-color: #e8f5e9;
-  transition: background-color 0.15s;
+/* Hover effect */
+.pricing-info-table tbody tr:hover {
+  background: #e9f5ea;
+  transition: 0.2s ease;
 }
 
+/* Category styling */
 .category-cell {
   font-weight: 600;
-  color: #1b5e20;
-  background: #f0f7f0;
+  color: #256d25;
 }
 
-.crop-cell {
-  font-weight: 500;
-}
+/* Loading & error */
 
-.price-cell {
-  font-weight: bold;
-  color: #d32f2f;
-  text-align: right;
-}
-
-.strikethrough-row .price-cell {
-  text-decoration: line-through;
-  color: #999;
-  font-weight: normal;
-}
-
-.no-data {
-  text-align: center;
-  color: #777;
-  font-size: 1.1rem;
-  margin: 3rem 0;
-}
-
-/* Loading & Error */
-.pricing-loading {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: #555;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 5px solid #e0e0e0;
-  border-top: 5px solid #4caf50;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
+.pricing-loading,
 .pricing-error {
   text-align: center;
-  padding: 3rem 1rem;
-  color: #c62828;
-}
-
-.pricing-error button {
-  margin-top: 1.5rem;
-  padding: 10px 24px;
-  background: #2e7d32;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.pricing-error button:hover {
-  background: #1b5e20;
+  font-size: 18px;
+  margin-top: 50px;
+  color: #444;
 }
 
 /* Mobile responsive */
+
 @media (max-width: 768px) {
-  .msp-table thead {
-    display: none;
+  .pricing-info-table th,
+  .pricing-info-table td {
+    padding: 10px;
+    font-size: 14px;
   }
 
-  .msp-table tr {
-    display: block;
-    margin-bottom: 1.2rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: white;
+  .pricing-info-container {
+    padding: 15px;
   }
-
-  .msp-table td {
-    display: block;
-    text-align: right;
-    border: none;
-    padding: 12px 16px;
-    position: relative;
-    padding-left: 45%;
-  }
-
-  .msp-table td:before {
-    content: attr(data-label);
-    position: absolute;
-    left: 16px;
-    font-weight: bold;
-    color: #2e7d32;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-  }
-
-  .category-cell:before { content: "Category"; }
-  .crop-cell:before     { content: "Crop"; }
-  .price-cell:before    { content: "MSP (₹/q)"; }
 }
