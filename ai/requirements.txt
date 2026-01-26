@@ -1,5 +1,6 @@
+numpy==1.26.4
+
 opencv-python
-numpy
 torch
 transformers
 Pillow
@@ -8,4 +9,3 @@ ultralytics
 google-generativeai
 pandas
 paddleocr
-pandas
