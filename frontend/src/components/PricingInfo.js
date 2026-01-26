@@ -2,84 +2,103 @@ import React, { useEffect, useState } from 'react';
 import '../styles/PricingInfo.css';
 
 function PricingInfo() {
-  const [rows, setRows] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function loadData() {
+    const fetchPricingData = async () => {
       try {
-        const res = await fetch('https://agriconnect-k5uz.onrender.com/pricing-info');
+        const response = await fetch('https://agriconnect-k5uz.onrender.com/pricing-info');
+        
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
 
-        if (!res.ok) throw new Error('Failed to fetch data');
+        const json = await response.json();
 
-        const data = await res.json();
+        // Safety check + basic validation
+        if (!Array.isArray(json)) {
+          throw new Error('Invalid data format from server');
+        }
 
-        const cleaned = [];
-        let currentCategory = '';
+        // Optional: filter out clearly invalid rows
+        const cleanedData = json.filter(item => 
+          item.crop && 
+          item.crop.trim() !== '' &&
+          item.price && 
+          item.price.trim() !== '' &&
+          !item.crop.toLowerCase().includes('cost') &&
+          !item.crop.toLowerCase().includes('kms') &&
+          item.category !== item.crop  // avoid duplicate header rows
+        );
 
-        data.forEach(({ crop = '', price = '' }) => {
-          crop = crop.trim();
-          price = price.trim();
-
-          // skip empty junk rows
-          if (!crop && !price) return;
-
-          // detect section titles
-          if (
-            price === '' ||
-            price === '-' ||
-            price.toLowerCase().includes('kms')
-          ) {
-            currentCategory = crop;
-            return;
-          }
-
-          // real data row
-          cleaned.push({
-            category: currentCategory || 'General',
-            crop,
-            price
-          });
-        });
-
-        setRows(cleaned);
+        setData(cleanedData);
       } catch (err) {
-        console.error(err);
-        setError(err.message);
+        console.error('Error fetching MSP prices:', err);
+        setError(err.message || 'Failed to load pricing information');
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    loadData();
+    fetchPricingData();
   }, []);
 
-  if (loading) return <p>Loading pricing info...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) {
+    return (
+      <div className="pricing-loading">
+        <div className="spinner"></div>
+        <p>Loading Minimum Support Prices (MSP) 2025-26...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pricing-error">
+        <h3>Something went wrong</h3>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Try Again</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="pricing-info-container">
-      <h2>MSP Crop Prices (₹ per Quintal)</h2>
+    <div className="pricing-info-page">
+      <header className="pricing-header">
+        <h1>Minimum Support Prices (MSP) – Kharif Marketing Season 2025-26</h1>
+        <p className="source-info">
+          Source: Government of India (PIB) – Prices in ₹ per Quintal
+        </p>
+      </header>
 
-      <table className="pricing-info-table">
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Crop</th>
-            <th>Price (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i}>
-              <td>{row.category}</td>
-              <td>{row.crop}</td>
-              <td>{row.price}</td>
+      <div className="table-container">
+        <table className="msp-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Crop</th>
+              <th>MSP (₹/Quintal)</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <tr key={index} className={row.price === '-' || row.price === '' ? 'strikethrough-row' : ''}>
+                <td className="category-cell">{row.category}</td>
+                <td className="crop-cell">{row.crop}</td>
+                <td className="price-cell">
+                  {row.price === '-' || row.price === '' ? '—' : row.price}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {data.length === 0 && (
+        <p className="no-data">No pricing data available at the moment.</p>
+      )}
     </div>
   );
 }
