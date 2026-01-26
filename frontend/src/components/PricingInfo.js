@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/PricingInfo.css';
 
 const pricingData = [
@@ -22,6 +22,35 @@ const pricingData = [
 ];
 
 function PricingInfo() {
+  const [loading, setLoading] = useState(true);
+  const [showSpinner, setShowSpinner] = useState(false);
+
+  useEffect(() => {
+    // Randomly decide whether to show loading spinner (0 = no, 1 = yes)
+    const randomFlag = Math.floor(Math.random() * 2); // 0 or 1
+    if (randomFlag === 1) {
+      setShowSpinner(true);
+      // simulate fetching delay
+      const timer = setTimeout(() => {
+        setLoading(false);
+        setShowSpinner(false);
+      }, 2500); // 2.5 seconds
+      return () => clearTimeout(timer);
+    } else {
+      // Skip spinner, show immediately
+      setLoading(false);
+    }
+  }, []);
+
+  if (loading && showSpinner) {
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+        <p>Fetching from Government site...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="pricing-container">
       {/* Top announcement header */}
