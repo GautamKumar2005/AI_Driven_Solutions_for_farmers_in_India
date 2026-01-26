@@ -377,129 +377,160 @@ bot.onText(/\/chat (.+)/, async (msg, match) => {
 });
 // -----------------------------
 // Scrape Pricing Info
-// -----------------------------
 async function scrapePricingInfo() {
   const url = 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2131983';
   let browser;
 
   try {
-    console.log(`Navigating to ${url}`);
+    console.log('Launching Puppeteer...');
 
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      defaultViewport: { width: 1280, height: 800 },
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process'
+      ],
+      timeout: 90000
     });
 
     const page = await browser.newPage();
 
     await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
     );
 
+    console.log(`Navigating to ${url}`);
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-    await page.waitForTimeout(3000); // small delay to ensure table loads
+
+    // Let dynamic content load
+    await page.waitForTimeout(4000);
 
     let pricingData = [];
 
-    // Try iframe first
+    // ---------- Try iframe first ----------
     const frameHandle = await page.$('iframe');
+
     if (frameHandle) {
+      console.log('Iframe found — scraping inside iframe');
+
       const frame = await frameHandle.contentFrame();
+
       if (frame) {
         try {
-          await frame.waitForSelector('.table-responsive table', { timeout: 20000 });
+          await frame.waitForSelector('.table-responsive table', { timeout: 30000 });
+
           pricingData = await frame.evaluate(() => {
-            const data = [];
+            const results = [];
             const table = document.querySelector('.table-responsive table');
-            if (!table) return data;
-            const rows = table.querySelectorAll('tr');
-            rows.forEach(row => {
+            if (!table) return results;
+
+            table.querySelectorAll('tr').forEach(row => {
               const cells = row.querySelectorAll('td');
               if (cells.length >= 4) {
-                const crop = cells[1].innerText.trim();
-                const price = cells[3].innerText.trim();
-                data.push({ crop, price });
+                results.push({
+                  crop: cells[1].innerText.trim(),
+                  price: cells[3].innerText.trim()
+                });
               }
             });
-            return data;
+
+            return results;
           });
         } catch (err) {
-          console.warn('Error scraping iframe table:', err.message);
+          console.warn('Iframe scrape failed:', err.message);
         }
       }
     }
 
-    // Fallback: scrape main page if no iframe or no data
+    // ---------- Fallback main page ----------
     if (pricingData.length === 0) {
+      console.log('Trying main page table');
+
       try {
-        await page.waitForSelector('.table-responsive table', { timeout: 20000 });
+        await page.waitForSelector('.table-responsive table', { timeout: 30000 });
+
         pricingData = await page.evaluate(() => {
-          const data = [];
+          const results = [];
           const table = document.querySelector('.table-responsive table');
-          if (!table) return data;
-          const rows = table.querySelectorAll('tr');
-          rows.forEach(row => {
+          if (!table) return results;
+
+          table.querySelectorAll('tr').forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 4) {
-              const crop = cells[1].innerText.trim();
-              const price = cells[3].innerText.trim();
-              data.push({ crop, price });
+              results.push({
+                crop: cells[1].innerText.trim(),
+                price: cells[3].innerText.trim()
+              });
             }
           });
-          return data;
+
+          return results;
         });
       } catch (err) {
-        console.warn('Error scraping main page table:', err.message);
+        console.warn('Main page scrape failed:', err.message);
       }
     }
 
     if (pricingData.length === 0) {
-      console.warn('No pricing data found.');
+      console.warn('⚠ No pricing data found');
+    } else {
+      console.log(`✅ Found ${pricingData.length} rows`);
     }
 
-    await browser.close();
     return pricingData;
 
   } catch (error) {
-    console.error('Error in scrapePricingInfo:', error.message);
-    if (browser) await browser.close();
+    console.error('Scraping crashed:', error);
     throw error;
+  } finally {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
   }
 }
 
-// Endpoint for pricing info
 app.get('/pricing-info', async (req, res) => {
   try {
     const data = await scrapePricingInfo();
-    res.json({ data });
+    res.json(data);   // no need to wrap again
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching pricing info', details: error.message });
+    res.status(500).json({
+      error: 'Error fetching pricing info',
+      details: error.message
+    });
   }
 });
 
-// -----------------------------
-// Scrape Article Content
-// -----------------------------
+
 app.get('/scrape', async (req, res) => {
   try {
     const url = 'https://ourworldindata.org/agricultural-production';
+
     const { data } = await axios.get(url, { timeout: 20000 });
     const $ = cheerio.load(data);
 
     const articleContent = $('article').html();
 
     if (!articleContent) {
-      return res.status(404).json({ error: 'No <article> tag found on the page' });
+      return res.status(404).json({ error: 'No article found' });
     }
 
     res.json({ article: articleContent });
 
   } catch (error) {
-    console.error('Error scraping data:', error.message);
-    res.status(500).json({ error: 'Error scraping article', details: error.message });
+    res.status(500).json({
+      error: 'Error scraping article',
+      details: error.message
+    });
   }
 });
+
+
+
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Catch all unmatched routes and send React's index.html
