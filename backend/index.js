@@ -19,12 +19,7 @@ const { GoogleGenAI } = require('@google/genai');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 // Start server
 // Serve React frontend
-app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-// Catch all unmatched routes and send React's index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-});
 
 // Importing routes
 
@@ -504,6 +499,12 @@ app.get('/scrape', async (req, res) => {
     console.error('Error scraping data:', error.message);
     res.status(500).json({ error: 'Error scraping article', details: error.message });
   }
+});
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Catch all unmatched routes and send React's index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 
