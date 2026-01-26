@@ -2,62 +2,80 @@ import React, { useEffect, useState } from 'react';
 import '../styles/PricingInfo.css';
 
 function PricingInfo() {
-  const [pricingInfo, setPricingInfo] = useState([]);
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchPricingInfo() {
+    async function loadData() {
       try {
-        const response = await fetch(
-          'https://agriconnect-k5uz.onrender.com/pricing-info'
-        );
+        const res = await fetch('https://agriconnect-k5uz.onrender.com/pricing-info');
 
-        if (!response.ok) throw new Error('Failed to fetch data');
+        if (!res.ok) throw new Error('Failed to fetch data');
 
-        const data = await response.json();
+        const data = await res.json();
 
-        // ✅ Clean scraped junk rows
-        const cleaned = data.filter(item =>
-          item.crop &&
-          item.price &&
-          item.crop !== 'Crops' &&
-          item.price !== '-' &&
-          !item.price.includes('Cost')
-        );
+        const cleaned = [];
+        let currentCategory = '';
 
-        setPricingInfo(cleaned);
+        data.forEach(({ crop = '', price = '' }) => {
+          crop = crop.trim();
+          price = price.trim();
+
+          // skip empty junk rows
+          if (!crop && !price) return;
+
+          // detect section titles
+          if (
+            price === '' ||
+            price === '-' ||
+            price.toLowerCase().includes('kms')
+          ) {
+            currentCategory = crop;
+            return;
+          }
+
+          // real data row
+          cleaned.push({
+            category: currentCategory || 'General',
+            crop,
+            price
+          });
+        });
+
+        setRows(cleaned);
       } catch (err) {
+        console.error(err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchPricingInfo();
+    loadData();
   }, []);
 
-  if (loading) return <p>Loading pricing data...</p>;
+  if (loading) return <p>Loading pricing info...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="pricing-info-container">
-      <h2 className="pricing-info-title">
-        MSP Pricing (₹ per Quintal) – 2025–26
-      </h2>
+      <h2>MSP Crop Prices (₹ per Quintal)</h2>
 
       <table className="pricing-info-table">
         <thead>
           <tr>
+            <th>Category</th>
             <th>Crop</th>
             <th>Price (₹)</th>
           </tr>
         </thead>
         <tbody>
-          {pricingInfo.map((item, index) => (
-            <tr key={index}>
-              <td>{item.crop}</td>
-              <td>{item.price}</td>
+          {rows.map((row, i) => (
+            <tr key={i}>
+              <td>{row.category}</td>
+              <td>{row.crop}</td>
+              <td>{row.price}</td>
             </tr>
           ))}
         </tbody>
